@@ -15,9 +15,14 @@ _start:
     jz noIp ; no ip provided
     call sprint ; debug
 
+    mov edx, 0 ; starting port
+    call _scanPort
+
     call quit
 
-noIp:
-    mov eax, noIpMsg
-    call sprint
-    call quit
+_scanPort:
+    cmp edx, 65535
+    jz quit
+
+    inc edx
+    call _scanPort

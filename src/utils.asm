@@ -41,3 +41,8 @@ sprint:
     pop edx
 
     ret
+
+noIp:
+    mov eax, noIpMsg
+    call sprint
+    call quit
