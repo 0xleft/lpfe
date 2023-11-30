@@ -32,25 +32,21 @@ _start:
 
     mov edx, 8080 ; starting port
 
-    call _scanPortImpl
+    call _scanPorts
 
     ; exit
     call quit
 
-; later
-; _scanPorts:
-;     cmp edx, 65535
-;     jz quit
-; 
-;     mov eax, edx
-;     call iprintln
-; 
-;     call _scanPortImpl
-; 
-;     inc edx
-;     call _scanPorts
-; 
-;     ret
+_scanPorts:
+    cmp edx, 65535
+    jz quit
+
+    call _scanPortImpl
+
+    inc edx
+    call _scanPorts
+
+    ret
 
 ; socket -> connect -> close
 ; if connect doesnt fail print port
@@ -85,7 +81,7 @@ _connect:
     mov     edi, eax            ; move return value of SYS_SOCKETCALL into edi (file descriptor for new socket, or -1 on error)
     
     ; push ip 127.0.0.1
-    push dword 0x0100007f      ; push
+    push dword 0x00000000      ; push
     push word 0x5000         ; push 80 onto stack PORT (reverse byte order)
     push word 2              ; push 2 dec onto stack AF_INET
     mov ecx, esp            ; move address of stack pointer into ecx
