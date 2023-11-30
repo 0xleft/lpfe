@@ -3,9 +3,6 @@
 section .data
 noIpMsg db "No IP address provided", 0Ah
 
-section .bss
-ip_addr resb 16
-
 section .text
 global _start
 
@@ -18,13 +15,9 @@ _start:
     jz noIp ; no ip provided
     call sprint ; debug
 
-    
-
-
     call quit
 
 noIp:
     mov eax, noIpMsg
     call sprint
     call quit
-    

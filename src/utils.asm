@@ -11,7 +11,7 @@ strlen:
     mov ebx, eax
 
 nextChar:
-    cmp byte [eax], 0
+    cmp byte [eax], 0 ; if null byte
     jz finished
     inc eax
     jmp nextChar
