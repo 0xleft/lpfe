@@ -5,11 +5,12 @@ noIpMsg db "No IP address provided", 0Ah, 0x0
 scanningMsg db "Scanning ", 0x0
 doubleDot db ":", 0x0
 exitingMsg db "Exiting", 0x0
-successMsg db "Success ", 0x0
+successMsg db "Port open: ", 0x0
 
 section .bss
 ip_addr resb 32
 port resb 8
+ip_result resb 32
 
 section .text
 global _start
@@ -28,9 +29,10 @@ _start:
     jz noIp ; no ip provided
 
     mov [ip_addr], eax ; set ip address
-    call sprintln
 
-    mov edx, 8080 ; starting port
+    call iprintln
+
+    mov edx, 21 ; starting port
 
     call _scanPorts
 
@@ -81,14 +83,7 @@ _socket:
 _connect:
     mov     edi, eax            ; move return value of SYS_SOCKETCALL into edi (file descriptor for new socket, or -1 on error)
     
-    ; decode ip address to int
-    mov edi, [ip_addr]
-    call str_to_int
-    mov edi, eax
-
-    ; move edi back
-    mov edi, eax
-
+    mov     eax, 0x00000000      ; move ip address into eax
     push    dword eax         ; push ip address onto stack
     push    word [port]
     push    word 2              ; push 2 dec onto stack AF_INET
@@ -127,24 +122,4 @@ _close:
     cmp eax, 0x0
     jl socketCloseError
 
-    ret
-
-str_to_int:
-    xor eax, eax
-    xor ebx, ebx
-    xor ecx, ecx
-
-next_digit:
-    movzx edx, byte [edi + ecx]  ; Load the next byte (character) from the buffer into edx
-    cmp dl, 0           ; Check if it's the null terminator (end of string)
-    je  done             ; If it is, we are done
-
-    sub dl, '0'         ; Convert ASCII character to integer ('0' -> 0, '1' -> 1, ..., '9' -> 9)
-    imul eax, ebx        ; Multiply the current result by 10 (shift left by one decimal place)
-    add eax, edx         ; Add the new digit to the result
-
-    inc ecx             ; Move to the next character in the string
-    jmp next_digit      ; Repeat the process for the next digit
-
-done:
     ret
