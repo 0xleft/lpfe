@@ -39,9 +39,10 @@ _start:
     call quit
 
 _scanPorts:
-    cmp edx, 65535
+    cmp edx, 65535 ; max port
     jz quit
 
+    mov [port], edx ; set port
     call _scanPortImpl
 
     inc edx
@@ -81,24 +82,10 @@ _socket:
 _connect:
     mov     edi, eax            ; move return value of SYS_SOCKETCALL into edi (file descriptor for new socket, or -1 on error)
     
-    pop eax
-    mov edx, eax
-    pop eax ; we back at port
-    ; call iprintln ; debug
-    mov ebx, eax
-    push eax
-    push edx
-
-    ; port on ebx
-
-
     ; push ip 127.0.0.1
-    push dword 0x00000000      ; push
+    push dword 0x0100007f
 
-    mov eax, ebx
-    mov word [port], ax
-
-    push word ax         ; push 80 onto stack PORT (reverse byte order)
+    push word [port]
     push word 2              ; push 2 dec onto stack AF_INET
     mov ecx, esp            ; move address of stack pointer into ecx
     push byte 16             ; push 16 dec onto stack (arguments length)
@@ -112,7 +99,7 @@ _connect:
     cmp eax, 0x0
     jnl .success
 
-    add esp, 20 ; move stack pointer back
+    add esp, 20
 
     ret
 
@@ -120,10 +107,10 @@ _connect:
     mov eax, successMsg
     call sprint
 
-    mov eax, edx
+    mov eax, [port]
     call iprintln
 
-    add esp, 20
+    add esp, 20 ; move stack pointer back
 
     ret
 
